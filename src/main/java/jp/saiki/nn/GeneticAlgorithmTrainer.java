@@ -35,6 +35,11 @@ public class GeneticAlgorithmTrainer implements Trainer {
             for (int i = 0; i < loss.length; i++) {
                 loss[i] = loss[i] / data.length;
             }
+            Model[] newModels = new Model[3];
+            newModels[0] = select(models, loss);
+            newModels[1] = crossover(models, loss);
+            newModels[2] = mutation(models);
+            models = newModels;
         }
     }
 
@@ -69,7 +74,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
             }
             double[] mergedBias = result.getLayers().get(i).getBias();
             int start = random.nextInt(mergedWeight.length);
-            double[] bias = second.getLayers().get(i).getWeight()[j];
+            double[] bias = second.getLayers().get(i).getBias();
             for (int x = start; x < bias.length; x++) {
                 mergedBias[x] = bias[x];
             }
