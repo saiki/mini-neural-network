@@ -1,6 +1,5 @@
 package jp.saiki.nn;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class GeneticAlgorithmTrainer implements Trainer {
