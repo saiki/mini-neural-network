@@ -8,6 +8,14 @@ public class Dense implements Layer {
 
     private double[] bias;
 
+    public Dense(int input, int output) {
+        this.weight = new double[output][input];
+        for (int i = 0; i < output; i++) {
+            this.weight[i] = Utils.random(input);
+        }
+        this.bias = Utils.random(output);
+    }
+
     public Dense(double[][] initWeight, double[] bias) {
         this.weight = initWeight;
         this.bias = bias;
@@ -19,7 +27,7 @@ public class Dense implements Layer {
         Arrays.fill(output, 0d);
         for (int i = 0; i < output.length; i++) {
             for (int j = 0; j < input.length; j++) {
-                output[i] += input[j] * this.weight[j][i];
+                output[i] += input[j] * this.weight[i][j];
             }
             output[i] += this.bias[i];
         }
