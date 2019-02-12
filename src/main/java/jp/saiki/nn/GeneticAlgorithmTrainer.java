@@ -22,7 +22,10 @@ public class GeneticAlgorithmTrainer implements Trainer {
     }
 
     public Model train(double[][] data, double[][] teacher) {
-        Model[] models = new Model[3];
+        Model[] models = new Model[]{this.model, this.model, this.model};
+        models[0] = mutation(models);
+        models[1] = mutation(models);
+        models[2] = mutation(models);
         for (int e = 0; e < epoch; e++) {
             double[] loss = new double[]{0, 0, 0};
             for (int i = 0; i < data.length; i++) {
