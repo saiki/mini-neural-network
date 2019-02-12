@@ -21,7 +21,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
         this.epoch = epoch;
     }
 
-    public void train(double[][] data, double[][] teacher) {
+    public Model train(double[][] data, double[][] teacher) {
         Model[] models = new Model[3];
         for (int e = 0; e < epoch; e++) {
             double[] loss = new double[]{0, 0, 0};
@@ -40,6 +40,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
             newModels[2] = mutation(models);
             models = newModels;
         }
+        return models[0];
     }
 
     private Model select(Model[] models, double[] loss) {
