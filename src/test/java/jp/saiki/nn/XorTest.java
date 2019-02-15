@@ -14,15 +14,15 @@ public class XorTest {
             new double[]{0d, 0d},
         };
         double[][] teacher = new double[][] {
-            new double[]{0d, 1d},
-            new double[]{1d, 0d},
-            new double[]{1d, 0d},
-            new double[]{0d, 1d},
+            new double[]{0d},
+            new double[]{1d},
+            new double[]{1d},
+            new double[]{0d},
         };
         Model model = new Sequential();
         model.addLayer(new Dense(2, 2));
         model.addLayer((double[] d) -> { return Activation.relu(d); });
-        model.addLayer(new Dense(2, 2));
+        model.addLayer(new Dense(2, 1));
         model.addLayer((double[] d) -> { return Activation.softmax(d); });
         Trainer trainer = new GeneticAlgorithmTrainer(model);
         model = trainer.train(input, teacher);
