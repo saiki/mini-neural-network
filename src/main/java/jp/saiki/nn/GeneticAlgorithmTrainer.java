@@ -22,10 +22,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
     }
 
     public Model train(double[][] data, double[][] teacher) {
-        Model[] models = new Model[]{this.model, this.model, this.model};
-        models[0] = mutation(models);
-        models[1] = mutation(models);
-        models[2] = mutation(models);
+        Model[] models = new Model[]{mutation(this.model), mutation(this.model), mutation(this.model)};
         for (int e = 0; e < epoch; e++) {
             double[] loss = new double[]{0, 0, 0};
             for (int i = 0; i < data.length; i++) {
@@ -40,7 +37,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
             Model[] newModels = new Model[3];
             newModels[0] = select(models, loss);
             newModels[1] = crossover(models, loss);
-            newModels[2] = mutation(models);
+            newModels[2] = mutation(this.model);
             models = newModels;
         }
         return models[0];
@@ -86,8 +83,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
         return result;
     }
 
-    private Model mutation(Model[] models) {
-        Model model = models[random.nextInt(models.length)];
+    private Model mutation(Model model) {
         for (Layer layer : model.getLayers()) {
             if (layer.getWeight() == null) {
                 continue;
@@ -95,7 +91,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
             double[][] weights = layer.getWeight();
             for (int i = 0; i < weights.length; i++) {
                 for (int j = 0; j < weights[i].length; j++) {
-                    weights[i][i] = random.nextDouble();
+                    weights[i][j] = random.nextDouble();
                 }
             }
             double[] bias = layer.getBias();
