@@ -4,30 +4,38 @@ import java.util.Arrays;
 
 public class Dense implements Layer {
 
+	private final int inputSize;
+
+	private final int outputSize;
+
     private double[][] weight;
 
     private double[] bias;
 
     public Dense(int input, int output) {
-        this.weight = new double[output][input];
-        for (int i = 0; i < output; i++) {
-            this.weight[i] = Utils.random(input);
+		this.inputSize = input;
+		this.outputSize = output;
+        this.weight = new double[input][output];
+        for (int i = 0; i < input; i++) {
+            this.weight[i] = Utils.random(output);
         }
         this.bias = Utils.random(output);
     }
 
     public Dense(double[][] initWeight, double[] bias) {
         this.weight = initWeight;
+		this.inputSize = initWeight.length;
+		this.outputSize = initWeight[0].length;
         this.bias = bias;
     }
 
     @Override
     public double[] forword(double[] input) {
-        double[] output = new double[this.weight[0].length];
+        double[] output = new double[this.outputSize];
         Arrays.fill(output, 0d);
-        for (int i = 0; i < output.length; i++) {
-            for (int j = 0; j < input.length; j++) {
-                output[i] += input[j] * this.weight[i][j];
+        for (int i = 0; i < this.outputSize; i++) {
+            for (int j = 0; j < this.inputSize; j++) {
+                output[i] += input[j] * this.weight[j][i];
             }
             output[i] += this.bias[i];
         }
