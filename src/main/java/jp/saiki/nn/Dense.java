@@ -4,7 +4,9 @@ import java.util.Arrays;
 
 public class Dense implements Layer {
 
-	private final int inputSize;
+	private static final long serialVersionUID = -3789067412634838790L;
+
+    private final int inputSize;
 
 	private final int outputSize;
 

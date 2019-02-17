@@ -26,8 +26,8 @@ public class XorTest {
         model.addLayer((double[] d) -> { return Activation.softmax(d); });
         Trainer trainer = new GeneticAlgorithmTrainer(model);
         model = trainer.train(input, teacher);
-        System.out.println(model.predict(new double[]{1d, 1d}));
-        System.out.println(model.predict(new double[]{1d, 1d})[0]);
         assertNotNull("not null", model.predict(new double[]{1d, 1d}));
+        System.out.println(model.predict(new double[]{1d, 1d})[0]);
+        System.out.println(model.predict(new double[]{0d, 0d})[0]);
     }
 }

@@ -1,30 +1,58 @@
 package jp.saiki.nn;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class GeneticAlgorithmTrainer implements Trainer {
 
-    public static final int DEFAULT_EPOCH = 10;
+    public static final int DEFAULT_EPOCH = 1000;
 
-    private Model model = null;
+    private static final int EACH_DEFAULT_SIZE = 10;
 
-    private int epoch = DEFAULT_EPOCH;
+    private final Model original;
+
+    private final int epoch;
+
+    private final int selectSize;
+
+    private final int crossoverSize;
+
+    private final int mutationSize;
 
     private Random random = new Random();
 
     public GeneticAlgorithmTrainer(Model model){
-        this.model = model;
+        this.original = model;
+        this.epoch = DEFAULT_EPOCH;
+        this.selectSize = EACH_DEFAULT_SIZE;
+        this.crossoverSize = EACH_DEFAULT_SIZE;
+        this.mutationSize = EACH_DEFAULT_SIZE;
     }
 
     public GeneticAlgorithmTrainer(Model model, int epoch){
-        this.model = model;
+        this.original = model;
         this.epoch = epoch;
+        this.selectSize = EACH_DEFAULT_SIZE;
+        this.crossoverSize = EACH_DEFAULT_SIZE;
+        this.mutationSize = EACH_DEFAULT_SIZE;
+    }
+
+    public GeneticAlgorithmTrainer(Model model, int epoch, int selectSize, int crossoverSize, int mutationSize){
+        this.original = model;
+        this.epoch = epoch;
+        this.selectSize = selectSize;
+        this.crossoverSize = crossoverSize;
+        this.mutationSize = mutationSize;
     }
 
     public Model train(double[][] data, double[][] teacher) {
-        Model[] models = new Model[]{mutation(this.model), mutation(this.model), mutation(this.model)};
+        Model[] models = new Model[this.selectSize+this.crossoverSize+this.mutationSize];
+        for (int i = 0; i < models.length; i++) {
+            models[i] = mutation(this.original).clone();
+        }
         for (int e = 0; e < epoch; e++) {
-            double[] loss = new double[]{0, 0, 0};
+            double[] loss = new double[models.length];
+            Arrays.fill(loss, 0d);
             for (int i = 0; i < data.length; i++) {
                 for (int j = 0; j < models.length; j++) {
                     double[] result = models[j].predict(data[i]);
@@ -34,17 +62,20 @@ public class GeneticAlgorithmTrainer implements Trainer {
             for (int i = 0; i < loss.length; i++) {
                 loss[i] = loss[i] / data.length;
             }
-            Model[] newModels = new Model[3];
-            newModels[0] = select(models, loss);
-            newModels[1] = crossover(models, loss);
-            newModels[2] = mutation(this.model);
+            System.out.println(minLossIndex(loss)+":"+loss[minLossIndex(loss)]);
+            Model[] newModels = new Model[this.selectSize+this.crossoverSize+this.mutationSize];
+            Model[] select = select(models, loss);
+            System.arraycopy(select, 0, newModels, 0, select.length);
+            Model[] crossover = crossover(models);
+            System.arraycopy(crossover, 0, newModels, select.length, select.length);
+            Model[] mutation = new Model[this.mutationSize];
+            for (int i = 0; i < mutation.length; i++) {
+                mutation[i] = mutation(this.original).clone();
+            }
+            System.arraycopy(mutation, 0, newModels, select.length+crossover.length, mutation.length);
             models = newModels;
         }
         return models[0];
-    }
-
-    private Model select(Model[] models, double[] loss) {
-        return models[minLossIndex(loss)];
     }
 
     private int minLossIndex(double[] loss) {
@@ -57,30 +88,56 @@ public class GeneticAlgorithmTrainer implements Trainer {
         return minIndex;
     }
 
-    private Model crossover(Model[] models, double[] loss) {
-        Model result = models[random.nextInt(models.length)];
-        Model second = models[random.nextInt(models.length)];
-        for (int i = 0; i < result.getLayers().size(); i++) {
-            if (result.getLayers().get(i).getWeight() == null) {
-                continue;
+    private Model[] select(Model[] models, double[] loss) {
+        Model[] result = new Model[selectSize];
+        for (int i = 0; i < result.length; i++) {
+            int minLossIndex = minLossIndex(loss);
+            result[i] = models[minLossIndex];
+            Model[] nextModel = new Model[models.length-1];
+            if (minLossIndex > 0) {
+                System.arraycopy(models, 0, nextModel, 0, minLossIndex-1);
             }
-            double[][] mergedWeight = result.getLayers().get(i).getWeight();
-            for (int j = 0; j < mergedWeight.length; j++) {
-                int start = random.nextInt(mergedWeight.length);
-                double[] weight = second.getLayers().get(i).getWeight()[j];
-                for (int x = start; x < weight.length; x++) {
-                    mergedWeight[j][x] = weight[x];
-                }
+            if (minLossIndex < models.length-1) {
+                System.arraycopy(models, minLossIndex+1, nextModel, minLossIndex, loss.length-minLossIndex-1);
             }
-            double[] mergedBias = result.getLayers().get(i).getBias();
-            int start = random.nextInt(mergedWeight.length);
-            double[] bias = second.getLayers().get(i).getBias();
-            for (int x = start; x < bias.length; x++) {
-                mergedBias[x] = bias[x];
+            double[] nextLoss = new double[loss.length-1];
+            if (minLossIndex > 0) {
+                System.arraycopy(loss, 0, nextLoss, 0, minLossIndex-1);
             }
-            result.getLayers().get(i).update(mergedWeight, mergedBias);
+            if (minLossIndex < models.length-1) {
+                System.arraycopy(loss, minLossIndex+1, nextLoss, minLossIndex, loss.length-minLossIndex-1);
+            }
+        }
+        System.out.println(Arrays.toString(result));
+        return result;
+    }
+
+    private Model[] crossover(Model[] models) {
+        Model[] result = new Model[this.crossoverSize];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = crossover(models[this.random.nextInt(models.length)], models[this.random.nextInt(models.length)]);
         }
         return result;
+    }
+
+    private Model crossover(Model to, Model from) {
+        for (int i = 0; i < to.getLayers().size(); i++) {
+            if (to.getLayers().get(i).getWeight() == null) {
+                continue;
+            }
+            double[][] mergedWeight = to.getLayers().get(i).getWeight();
+            for (int j = 0; j < mergedWeight.length; j++) {
+                int start = random.nextInt(mergedWeight[j].length);
+                double[] weight = from.getLayers().get(i).getWeight()[j];
+                System.arraycopy(weight, start, mergedWeight[j], start, weight.length-start);
+            }
+            double[] mergedBias = to.getLayers().get(i).getBias();
+            int start = random.nextInt(mergedBias.length);
+            double[] bias = from.getLayers().get(i).getBias();
+            System.arraycopy(bias, start, mergedBias, start, bias.length-start);
+            to.getLayers().get(i).update(mergedWeight, mergedBias);
+        }
+        return to.clone();
     }
 
     private Model mutation(Model model) {
@@ -100,10 +157,6 @@ public class GeneticAlgorithmTrainer implements Trainer {
             }
             layer.update(weights, bias);
         }
-        return model;
-    }
-
-    public Model getModel() {
-        return this.model;
+        return model.clone();
     }
  }

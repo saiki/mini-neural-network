@@ -1,7 +1,9 @@
 package jp.saiki.nn;
 
+import java.io.Serializable;
+
 @FunctionalInterface
-public interface Layer {
+public interface Layer extends Serializable, Cloneable {
 
     public default double[][] getWeight() {
         return null;

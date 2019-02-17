@@ -1,11 +1,14 @@
 package jp.saiki.nn;
 
+import java.util.Random;
+
 public class Utils {
 
     public  static double[] random(int size) {
+        Random random = new Random();
         double[] output = new double[size];
         for (int i = 0; i < size; i++) {
-            output[i] = Math.random();
+            output[i] = random.nextDouble();
         }
         return output;
     }
