@@ -33,14 +33,16 @@ public class Sequential implements Model {
 
     @Override
     public Sequential clone() {
-        try {
-            Sequential m = (Sequential)super.clone();
-            for (int i = 0; i < m.layers.size(); i++) {
-                m.getLayers().get(i).update(this.layers.get(i).getWeight(), this.layers.get(i).getBias());
+        Sequential m = new Sequential();
+        m.getLayers().clear();
+        for (Layer l : this.layers) {
+            if (l instanceof Dense){
+                Dense d = (Dense) l;
+                m.addLayer(d.clone());
+            } else {
+                m.addLayer(l);
             }
-            return m;
-        } catch (CloneNotSupportedException ex) {
-            throw new InternalError(ex);
         }
+        return m;
     }
 }

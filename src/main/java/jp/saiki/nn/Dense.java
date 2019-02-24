@@ -59,4 +59,13 @@ public class Dense implements Layer {
         this.weight = newWeight;
         this.bias = newBias;
     }
+
+    @Override
+    public Dense clone() {
+        double[][] weight = new double[this.weight.length][this.weight[0].length];
+        double[] bias = new double[this.bias.length];
+        System.arraycopy(this.weight, 0, weight, 0, this.weight.length);
+        System.arraycopy(this.bias, 0, bias, 0, this.bias.length);
+        return new Dense(weight, bias);
+    }
 }
