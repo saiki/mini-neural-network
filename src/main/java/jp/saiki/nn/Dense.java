@@ -6,17 +6,11 @@ public class Dense implements Layer {
 
 	private static final long serialVersionUID = -3789067412634838790L;
 
-    private final int inputSize;
-
-	private final int outputSize;
-
     private double[][] weight;
 
     private double[] bias;
 
     public Dense(int input, int output) {
-		this.inputSize = input;
-		this.outputSize = output;
         this.weight = new double[output][input];
         for (int i = 0; i < output; i++) {
             this.weight[i] = Utils.random(input);
@@ -26,14 +20,12 @@ public class Dense implements Layer {
 
     public Dense(double[][] initWeight, double[] bias) {
         this.weight = initWeight;
-		this.inputSize = initWeight.length;
         this.bias = bias;
-		this.outputSize = bias.length;
     }
 
     @Override
     public double[] forword(double[] input) {
-        double[] output = new double[this.outputSize];
+        double[] output = new double[this.bias.length];
         Arrays.fill(output, 0d);
         for (int i = 0; i < this.weight.length; i++) {
             for (int j = 0; j < this.weight[i].length; j++) {
