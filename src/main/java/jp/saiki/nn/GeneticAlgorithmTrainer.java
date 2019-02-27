@@ -66,7 +66,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
             Model[] newModels = new Model[this.selectSize+this.crossoverSize+this.mutationSize];
             Model[] select = select(models, loss);
             System.arraycopy(select, 0, newModels, 0, select.length);
-            Model[] crossover = crossover(models);
+            Model[] crossover = crossover(select);
             System.arraycopy(crossover, 0, newModels, select.length, select.length);
             Model[] mutation = new Model[this.mutationSize];
             for (int i = 0; i < mutation.length; i++) {
@@ -93,22 +93,23 @@ public class GeneticAlgorithmTrainer implements Trainer {
         for (int i = 0; i < result.length; i++) {
             int minLossIndex = minLossIndex(loss);
             result[i] = models[minLossIndex];
-            Model[] nextModel = new Model[models.length-1];
+            Model[] nextModels = new Model[models.length-1];
             if (minLossIndex > 0) {
-                System.arraycopy(models, 0, nextModel, 0, minLossIndex-1);
+                System.arraycopy(models, 0, nextModels, 0, minLossIndex);
             }
             if (minLossIndex < models.length-1) {
-                System.arraycopy(models, minLossIndex+1, nextModel, minLossIndex, loss.length-minLossIndex-1);
+                System.arraycopy(models, minLossIndex+1, nextModels, minLossIndex, loss.length-minLossIndex-1);
             }
             double[] nextLoss = new double[loss.length-1];
             if (minLossIndex > 0) {
-                System.arraycopy(loss, 0, nextLoss, 0, minLossIndex-1);
+                System.arraycopy(loss, 0, nextLoss, 0, minLossIndex);
             }
             if (minLossIndex < models.length-1) {
                 System.arraycopy(loss, minLossIndex+1, nextLoss, minLossIndex, loss.length-minLossIndex-1);
             }
+            models = nextModels;
+            loss = nextLoss;
         }
-        System.out.println(Arrays.toString(result));
         return result;
     }
 
@@ -140,7 +141,7 @@ public class GeneticAlgorithmTrainer implements Trainer {
         return to.clone();
     }
 
-    private Model mutation(Model model) {
+    private Model mutation(final Model model) {
         for (Layer layer : model.getLayers()) {
             if (layer.getWeight() == null) {
                 continue;
