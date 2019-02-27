@@ -27,17 +27,17 @@ public class Dense implements Layer {
     public Dense(double[][] initWeight, double[] bias) {
         this.weight = initWeight;
 		this.inputSize = initWeight.length;
-		this.outputSize = initWeight[0].length;
         this.bias = bias;
+		this.outputSize = bias.length;
     }
 
     @Override
     public double[] forword(double[] input) {
         double[] output = new double[this.outputSize];
         Arrays.fill(output, 0d);
-        for (int i = 0; i < this.outputSize; i++) {
-            for (int j = 0; j < this.inputSize; j++) {
-                output[i] += input[j] * this.weight[j][i];
+        for (int i = 0; i < this.weight.length; i++) {
+            for (int j = 0; j < this.weight[i].length; j++) {
+                output[i] += input[j] * this.weight[i][j];
             }
             output[i] += this.bias[i];
         }
