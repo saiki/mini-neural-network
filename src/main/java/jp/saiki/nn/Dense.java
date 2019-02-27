@@ -17,9 +17,9 @@ public class Dense implements Layer {
     public Dense(int input, int output) {
 		this.inputSize = input;
 		this.outputSize = output;
-        this.weight = new double[input][output];
-        for (int i = 0; i < input; i++) {
-            this.weight[i] = Utils.random(output);
+        this.weight = new double[output][input];
+        for (int i = 0; i < output; i++) {
+            this.weight[i] = Utils.random(input);
         }
         this.bias = Utils.random(output);
     }
